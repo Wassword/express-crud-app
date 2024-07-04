@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+
+
 // Middleware for parsing JSON
 app.use(express.json());
 
-let items =[]// empty array to store items
+let items =[];// empty array to store items
 
 // Create operation 
 app.post('/items', ( req, res) => {
@@ -15,39 +16,42 @@ app.post('/items', ( req, res) => {
     items.push(newItem);
     res.status(201).json(newItem);
 });
-app.get('/items/:id', (req, res) => {
-    const item = items.find(i => i.id === parseInt(req.params.id));
-    if(!item) return res.status(404).send('item not found');
-    res.json(item);
+app.get('/items', (req, res) => {
+    res.json(items);
 });
 
 //update operation
 app.put ('/items/:id', (req, res) => {
     const item = items.find(i => i.id === parseInt(req.params.id));
-    if(!item) return res.status(404).send('item not found');
-    
-    const updateItem = {
-        ...item, 
+    if(!item) return res.status(404).send('Item not found');
+    res.json(item);
+});
+// Update Operation
+app.put('/items/:id', (req, res) => {
+    const item = items.find(i => i.id === parseInt(req.params.id));
+    if (!item) return res.status(404).send('Item not found');
+
+    const updatedItem = {
+        ...item,
         ...req.body
     };
-    items= item.ma(i => p(i.id === parseInt(req.params.id) ? updateItem :i ));
-    res.json(updatedItem);
 
+    items = items.map(i => (i.id === parseInt(req.params.id) ? updatedItem : i));
+    res.json(updatedItem);
 });
-//delete operation
+
+// Delete Operation
 app.delete('/items/:id', (req, res) => {
     items = items.filter(i => i.id !== parseInt(req.params.id));
     res.status(204).send();
 });
 
+// Error Handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
+const port = 3000;
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
-
-
-
-
